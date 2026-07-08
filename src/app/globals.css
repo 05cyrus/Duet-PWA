@@ -1,26 +1,161 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Class-based dark mode (toggled by ThemeProvider) */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-quicksand), ui-rounded, system-ui, sans-serif;
+  --font-display: var(--font-dancing), cursive;
+
+  /* Brand palette — romantic pastels */
+  --color-blush-50: #fff1f4;
+  --color-blush-100: #ffe4ea;
+  --color-blush-200: #fecdd8;
+  --color-blush-300: #fda4b8;
+  --color-blush-400: #fb7195;
+  --color-blush-500: #f43f6e;
+  --color-blush-600: #e11d5b;
+  --color-blush-700: #be124d;
+  --color-lilac-50: #f6f4ff;
+  --color-lilac-100: #ece8ff;
+  --color-lilac-200: #ddd4ff;
+  --color-lilac-300: #c4b3ff;
+  --color-lilac-400: #a688fa;
+  --color-lilac-500: #8b5cf6;
+  --color-lilac-600: #7c3aed;
+  --color-peach-100: #ffedd5;
+  --color-peach-200: #fed7aa;
+  --color-peach-300: #fdba74;
+  --color-peach-400: #fb923c;
+
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --surface: #fff7f9;
+  --ink: #3d2c3a;
+  --ink-soft: #8d7489;
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 8px 32px rgba(244, 63, 110, 0.08);
+}
+
+.dark {
+  --surface: #171122;
+  --ink: #f5edf5;
+  --ink-soft: #a893ab;
+  --glass-bg: rgba(42, 30, 58, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
+
+/* Ambient pastel backdrop */
+.romance-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 40rem at 8% -10%, rgba(251, 113, 149, 0.16), transparent 60%),
+    radial-gradient(36rem 36rem at 105% 15%, rgba(166, 136, 250, 0.16), transparent 60%),
+    radial-gradient(30rem 30rem at 50% 110%, rgba(253, 186, 116, 0.14), transparent 60%);
+}
+.dark .romance-bg {
+  background:
+    radial-gradient(40rem 40rem at 8% -10%, rgba(244, 63, 110, 0.14), transparent 60%),
+    radial-gradient(36rem 36rem at 105% 15%, rgba(139, 92, 246, 0.15), transparent 60%),
+    radial-gradient(30rem 30rem at 50% 110%, rgba(251, 146, 60, 0.08), transparent 60%);
+}
+
+/* Glassmorphism primitives */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.gradient-text {
+  background: linear-gradient(115deg, #f43f6e 10%, #8b5cf6 55%, #fb923c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-btn {
+  background: linear-gradient(115deg, #f43f6e, #a855f7);
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+.gradient-btn:hover { filter: brightness(1.08) saturate(1.1); }
+.gradient-btn:active { transform: scale(0.97); }
+
+/* Skeleton shimmer */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(140, 116, 137, 0.12);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: shimmer 1.6s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* Floating hearts */
+@keyframes float-up {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-120px) scale(1.6); opacity: 0; }
+}
+.heart-float { animation: float-up 1.4s ease-out forwards; }
+
+@keyframes pulse-heart {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.15); }
+  40% { transform: scale(0.95); }
+  60% { transform: scale(1.1); }
+}
+.heartbeat { animation: pulse-heart 1.8s ease-in-out infinite; }
+
+/* Scrollbars */
+* { scrollbar-width: thin; scrollbar-color: rgba(244, 63, 110, 0.35) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: rgba(244, 63, 110, 0.35); border-radius: 8px; }
+
+/* Accessibility */
+:focus-visible {
+  outline: 2px solid #f43f6e;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* Safe areas for installed PWA */
+.pb-safe { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+.pt-safe { padding-top: env(safe-area-inset-top); }

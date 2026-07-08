@@ -1,103 +1,121 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { CoupleHearts } from "@/components/illustrations/CoupleHearts";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { useInstallPrompt } from "@/hooks/useInstallPrompt";
+import { useAuth } from "@/providers/AuthProvider";
+
+const FEATURES = [
+  { emoji: "📖", title: "Timeline", text: "Your whole story — first meet to yesterday's laugh." },
+  { emoji: "💬", title: "Chat", text: "A private lane for the two of you, with voice notes." },
+  { emoji: "🎮", title: "16 Games", text: "Quizzes, dares, puzzles and a dash game to beat." },
+  { emoji: "🖼️", title: "Gallery", text: "Albums, favorites and slideshows of every memory." },
+  { emoji: "📅", title: "Calendar", text: "Dates, trips and anniversaries — never miss one." },
+  { emoji: "💌", title: "Letters", text: "Slow, scheduled love letters. Sealed until it's time." },
+];
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 120, damping: 18 } },
+};
+
+export default function LandingPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { canInstall, install } = useInstallPrompt();
+
+  // Signed-in visitors go straight to the dashboard.
+  useEffect(() => {
+    if (!loading && user) router.replace("/dashboard");
+  }, [loading, user, router]);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="mx-auto max-w-5xl px-5 pb-20 pt-safe">
+      {/* Nav */}
+      <nav className="flex items-center justify-between py-5">
+        <span className="text-2xl font-bold gradient-text" style={{ fontFamily: "var(--font-display)" }}>
+          Duet
+        </span>
+        <div className="flex items-center gap-2">
+          <Link href="/login" className="rounded-2xl px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:text-blush-600">
+            Sign in
+          </Link>
+          <Link href="/signup" className="gradient-btn rounded-2xl px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blush-500/25">
+            Get started
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </nav>
+
+      {/* Hero */}
+      <section className="grid items-center gap-10 py-10 md:grid-cols-2 md:py-16">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6 text-center md:text-left">
+          <motion.p variants={fadeUp} className="text-sm font-semibold uppercase tracking-widest text-lilac-500">
+            A cozy app for two
+          </motion.p>
+          <motion.h1 variants={fadeUp} className="text-4xl font-bold leading-tight sm:text-5xl">
+            Your relationship,<br />
+            <span className="gradient-text">beautifully together.</span>
+          </motion.h1>
+          <motion.p variants={fadeUp} className="mx-auto max-w-md text-ink-soft md:mx-0">
+            Memories, chat, games, plans and little rituals — one private, installable
+            home for your love story. Works offline, syncs everywhere.
+          </motion.p>
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
+            <Link href="/signup" className="gradient-btn rounded-2xl px-6 py-3 font-semibold text-white shadow-lg shadow-blush-500/25">
+              Start your story 💞
+            </Link>
+            {canInstall && (
+              <button
+                onClick={install}
+                className="glass rounded-2xl px-6 py-3 font-semibold text-blush-600 dark:text-blush-300"
+              >
+                Install app ⬇️
+              </button>
+            )}
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 16, delay: 0.15 }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          <GlassCard padded={false} className="p-6">
+            <CoupleHearts className="w-full text-ink" />
+          </GlassCard>
+        </motion.div>
+      </section>
+
+      {/* Features */}
+      <motion.section
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+        className="grid gap-4 py-10 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {FEATURES.map((f) => (
+          <motion.div key={f.title} variants={fadeUp}>
+            <GlassCard hover className="h-full">
+              <span aria-hidden className="text-3xl">{f.emoji}</span>
+              <h3 className="mt-3 font-bold">{f.title}</h3>
+              <p className="mt-1 text-sm text-ink-soft">{f.text}</p>
+            </GlassCard>
+          </motion.div>
+        ))}
+      </motion.section>
+
+      <footer className="py-10 text-center text-xs text-ink-soft">
+        Made with 💖 · Duet keeps your data private to the two of you.
       </footer>
-    </div>
+    </main>
   );
 }
