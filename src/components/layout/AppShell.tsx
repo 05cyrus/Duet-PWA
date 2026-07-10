@@ -183,7 +183,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass absolute inset-x-0 bottom-0 grid grid-cols-4 gap-2 rounded-t-3xl p-4 pb-24"
+              className="glass-strong absolute inset-x-0 bottom-0 grid grid-cols-4 gap-2 rounded-t-3xl p-4 pb-24"
             >
               {SECONDARY_NAV.map((item) => (
                 <Link key={item.href} href={item.href}

@@ -38,6 +38,7 @@
   --ink: #3d2c3a;
   --ink-soft: #8d7489;
   --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 247, 249, 0.98);
   --glass-border: rgba(255, 255, 255, 0.65);
   --glass-shadow: 0 8px 32px rgba(244, 63, 110, 0.08);
 }
@@ -47,6 +48,7 @@
   --ink: #f5edf5;
   --ink-soft: #a893ab;
   --glass-bg: rgba(42, 30, 58, 0.55);
+  --glass-bg-strong: rgba(33, 24, 48, 0.98);
   --glass-border: rgba(255, 255, 255, 0.09);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
@@ -85,6 +87,17 @@ body {
 /* Glassmorphism primitives */
 .glass {
   background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+/* Near-opaque variant for menus/popovers: keeps the frosted look but stays
+   legible when content sits behind it (backdrop-filter is unreliable on
+   mobile, so we can't depend on blur alone). */
+.glass-strong {
+  background: var(--glass-bg-strong);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   backdrop-filter: blur(18px) saturate(160%);

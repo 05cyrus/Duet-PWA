@@ -55,7 +55,7 @@ export function NotificationsBell() {
               initial={{ opacity: 0, y: 8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
-              className="glass absolute right-0 z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-2xl p-2"
+              className="glass-strong fixed right-3 top-[calc(env(safe-area-inset-top,0px)+4rem)] z-50 max-h-[70vh] w-[calc(100vw-1.5rem)] max-w-xs overflow-y-auto rounded-2xl p-2 sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:max-h-96 sm:w-80 sm:max-w-none"
               role="menu"
             >
               {mine.length === 0 ? (
