@@ -2,9 +2,9 @@
 
 import {
   ConfirmationResult, GoogleAuthProvider, RecaptchaVerifier, User,
-  createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail,
-  signInWithEmailAndPassword, signInWithPhoneNumber, signInWithPopup,
-  signOut as fbSignOut, updateProfile,
+  createUserWithEmailAndPassword, getRedirectResult, onAuthStateChanged,
+  sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPhoneNumber,
+  signInWithPopup, signInWithRedirect, signOut as fbSignOut, updateProfile,
 } from "firebase/auth";
 import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
@@ -53,6 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return;
     }
+    // Complete any pending redirect sign-in (no-op for popup / normal loads).
+    getRedirectResult(auth()).catch(() => {
+      // Surfaced on next interaction; onAuthStateChanged still drives UI state.
+    });
     return onAuthStateChanged(auth(), async (u) => {
       setUser(u);
       if (u) {
@@ -77,7 +81,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const signInGoogle = useCallback(async () => {
-    await signInWithPopup(auth(), new GoogleAuthProvider());
+    // Popup is the reliable flow for a cross-domain authDomain on localhost:
+    // signInWithRedirect needs to carry state back across the
+    // localhost → firebaseapp.com → Google hops, which modern browsers break by
+    // partitioning third-party storage (the page returns blank). The popup's
+    // COOP "window.closed" warning is non-fatal — the result arrives over a
+    // separate channel. Fall back to redirect only if the popup is truly
+    // blocked by the browser.
+    try {
+      await signInWithPopup(auth(), new GoogleAuthProvider());
+    } catch (e) {
+      if ((e as { code?: string })?.code === "auth/popup-blocked") {
+        await signInWithRedirect(auth(), new GoogleAuthProvider());
+        return;
+      }
+      throw e;
+    }
   }, []);
 
   const signUpEmail = useCallback(async (name: string, email: string, password: string) => {
