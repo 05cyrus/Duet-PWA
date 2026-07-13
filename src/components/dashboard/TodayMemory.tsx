@@ -31,7 +31,7 @@ export function TodayMemory() {
       </div>
       {!memory ? (
         <p className="px-5 py-6 text-center text-sm text-ink-soft">
-          Your story starts now — add your first memory 📸
+          Your story starts now — add your first memory 📖
         </p>
       ) : (
         <Link href="/timeline" className="block">

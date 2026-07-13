@@ -4,8 +4,10 @@ import { motion, useAnimationControls } from "framer-motion";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useGameScore } from "@/hooks/useGameScore";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { SPIN_PROMPTS } from "@/lib/games/decks";
 import { gameById } from "@/lib/games/registry";
+import { isoToday } from "@/lib/utils";
 import { useCouple } from "@/providers/CoupleProvider";
 
 export function SpinBottle() {
@@ -14,13 +16,19 @@ export function SpinBottle() {
   const { myName, partnerName } = useCouple();
   const controls = useAnimationControls();
   const rotation = useRef(0);
+  const today = isoToday();
 
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<{ who: string; prompt: string } | null>(null);
-  const [spins, setSpins] = useState(0);
+  // One spin per calendar day — persisted so a reload can't grant a second spin.
+  const [record, setRecord, hydrated] = useLocalStorage<{ lastSpin: string }>(
+    "duet-spin-bottle",
+    { lastSpin: "" },
+  );
+  const spunToday = record.lastSpin === today;
 
   const spin = async () => {
-    if (spinning) return;
+    if (spinning || spunToday || !hydrated) return;
     setSpinning(true);
     setResult(null);
     const extra = 1440 + Math.random() * 720; // 4–6 full turns
@@ -34,9 +42,8 @@ export function SpinBottle() {
     const prompt = SPIN_PROMPTS[Math.floor(Math.random() * SPIN_PROMPTS.length)];
     setResult({ who, prompt });
     setSpinning(false);
-    const total = spins + 1;
-    setSpins(total);
-    if (total % 5 === 0) submitScore(total * 5, { spins: total });
+    setRecord({ lastSpin: today });
+    submitScore(10, { date: today });
   };
 
   return (
@@ -59,10 +66,12 @@ export function SpinBottle() {
         </motion.div>
       )}
 
-      <Button onClick={spin} loading={spinning} size="lg">
-        {spinning ? "Spinning…" : "Spin the bottle 🍾"}
+      <Button onClick={spin} loading={spinning} disabled={spunToday || !hydrated} size="lg">
+        {spinning ? "Spinning…" : spunToday ? "Come back tomorrow 💖" : "Spin the bottle 🍾"}
       </Button>
-      <p className="mt-3 text-xs text-ink-soft">Spins: {spins}</p>
+      <p className="mt-3 text-xs text-ink-soft">
+        {spunToday ? "One spin a day keeps the spark alive 🍾" : "One spin per day"}
+      </p>
     </div>
   );
 }

@@ -86,6 +86,40 @@ export function CoupleProvider({ children }: { children: React.ReactNode }) {
     await updateDoc(doc(db(), "couples", coupleId), { anniversary: isoDate });
   }, [coupleId]);
 
+  /**
+   * Auto-seed a default "day one" Timeline memory once the couple has a start
+   * date. Guarded by `anniversaryMemorySeeded` so it fires exactly once per
+   * couple — existing couples get it backfilled on load, and a couple that
+   * deletes it won't have it reappear. The fixed doc id also prevents dupes.
+   */
+  useEffect(() => {
+    if (!couple || !user) return;
+    const isoDate = couple.anniversary;
+    if (!isoDate || couple.anniversaryMemorySeeded) return;
+    const id = couple.id;
+    (async () => {
+      try {
+        await setDoc(
+          doc(db(), "couples", id, "timeline", "_anniversary"),
+          {
+            kind: "anniversary",
+            title: "The day our story began",
+            caption: "Where our forever started 💞",
+            date: isoDate,
+            location: "",
+            tags: ["anniversary"],
+            createdBy: user.uid,
+            createdAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+        await updateDoc(doc(db(), "couples", id), { anniversaryMemorySeeded: true });
+      } catch {
+        // Offline or transient — retried on the next couple load.
+      }
+    })();
+  }, [couple, user]);
+
   const updateCouple = useCallback(async (data: Partial<Couple>) => {
     if (!coupleId) return;
     await updateDoc(doc(db(), "couples", coupleId), data);

@@ -28,6 +28,8 @@ export interface Couple {
   inviteCode: string;
   /** ISO date string of the anniversary (relationship start). */
   anniversary: string | null;
+  /** True once the default "day one" timeline memory has been seeded. */
+  anniversaryMemorySeeded?: boolean;
   coupleName: string;
   /** Gamification totals. */
   xp: number;
