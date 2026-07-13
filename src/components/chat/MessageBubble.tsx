@@ -38,17 +38,6 @@ export function MessageBubble({ msg, mine, partnerRead, onReact, onPin }: Bubble
           )}
           aria-label="Message actions"
         >
-          {msg.kind === "image" && msg.mediaUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- Firebase Storage URL
-            <img src={msg.mediaUrl} alt="Shared" className="mb-1 max-h-64 w-full rounded-2xl object-cover" loading="lazy" />
-          )}
-          {msg.kind === "gif" && msg.mediaUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- Tenor CDN
-            <img src={msg.mediaUrl} alt="GIF" className="mb-1 max-h-56 rounded-2xl" loading="lazy" />
-          )}
-          {msg.kind === "voice" && msg.mediaUrl && (
-            <audio controls src={msg.mediaUrl} className="my-1 h-10 w-52 max-w-full" preload="metadata" />
-          )}
           {msg.text && <p className="whitespace-pre-wrap break-words">{msg.text}</p>}
           <span className={cn("mt-1 flex items-center justify-end gap-1 text-[10px]", mine ? "text-white/70" : "text-ink-soft/70")}>
             {msg.pinned && <span aria-label="Pinned">📌</span>}

@@ -35,15 +35,6 @@ export function TodayMemory() {
         </p>
       ) : (
         <Link href="/timeline" className="block">
-          {memory.mediaUrls[0] && memory.mediaTypes[0] === "image" && (
-            // eslint-disable-next-line @next/next/no-img-element -- Firebase Storage URL
-            <img
-              src={memory.mediaUrls[0]}
-              alt={memory.title}
-              className="mt-3 h-40 w-full object-cover"
-              loading="lazy"
-            />
-          )}
           <div className="px-5 py-4">
             <p className="text-sm font-bold">
               <span aria-hidden className="mr-1">{MEMORY_KIND_META[memory.kind]?.emoji ?? "✨"}</span>

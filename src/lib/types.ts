@@ -37,14 +37,13 @@ export interface Couple {
 
 /* ---------------------------------- chat ---------------------------------- */
 
-export type MessageKind = "text" | "image" | "voice" | "gif";
+export type MessageKind = "text";
 
 export interface ChatMessage {
   id: string;
   senderId: string;
   kind: MessageKind;
   text: string;
-  mediaUrl?: string;
   pinned: boolean;
   /** uids that have read the message. */
   readBy: string[];
@@ -55,7 +54,7 @@ export interface ChatMessage {
 /* -------------------------------- timeline -------------------------------- */
 
 export type MemoryKind =
-  | "first-meet" | "first-date" | "trip" | "anniversary" | "photo" | "video" | "special";
+  | "first-meet" | "first-date" | "trip" | "anniversary" | "special";
 
 export interface Memory {
   id: string;
@@ -65,32 +64,7 @@ export interface Memory {
   date: string; // ISO date
   location: string;
   tags: string[];
-  mediaUrls: string[];
-  mediaTypes: ("image" | "video")[];
   createdBy: string;
-  createdAt: TS;
-}
-
-/* --------------------------------- gallery -------------------------------- */
-
-export interface Album {
-  id: string;
-  name: string;
-  cover: string | null;
-  count: number;
-  createdAt: TS;
-}
-
-export interface GalleryItem {
-  id: string;
-  albumId: string;
-  url: string;
-  type: "image" | "video";
-  caption: string;
-  favorite: boolean;
-  reactions: Record<string, string>;
-  comments: { uid: string; name: string; text: string; at: number }[];
-  uploadedBy: string;
   createdAt: TS;
 }
 

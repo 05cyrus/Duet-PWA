@@ -23,7 +23,19 @@ export async function enablePushNotifications(uid: string): Promise<boolean> {
     const { getMessaging, getToken, isSupported } = await import("firebase/messaging");
     if (!(await isSupported())) return false;
 
-    const registration = await navigator.serviceWorker.ready;
+    // Wait for the service worker, but never hang: with no SW registered
+    // (e.g. a dev build where registration is skipped) `.ready` resolves never.
+    const registration = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+    ]);
+    if (!registration) {
+      console.warn(
+        "Push: service worker not ready within 5s — is it registered? " +
+          "(run a production build, or ensure /sw.js registers).",
+      );
+      return false;
+    }
     const messaging = getMessaging();
     const token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
     if (!token) return false;

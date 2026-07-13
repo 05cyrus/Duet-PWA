@@ -9,11 +9,10 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/dashboard", label: "Home", emoji: "🏠" },
   { href: "/chat", label: "Chat", emoji: "💬" },
   { href: "/games", label: "Games", emoji: "🎮" },
-  { href: "/gallery", label: "Gallery", emoji: "🖼️" },
+  { href: "/timeline", label: "Timeline", emoji: "📖" },
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
-  { href: "/timeline", label: "Timeline", emoji: "📖" },
   { href: "/calendar", label: "Calendar", emoji: "📅" },
   { href: "/habits", label: "Habits", emoji: "✅" },
   { href: "/moods", label: "Moods", emoji: "🌈" },

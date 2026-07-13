@@ -7,7 +7,10 @@ import { firebaseConfigured } from "@/lib/firebase/client";
 /** Registers the service worker and foreground push handler. Renders nothing. */
 export function PwaSetup() {
   useEffect(() => {
-    if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production") return;
+    // Register in all environments so push notifications can be enabled and
+    // tested on localhost. The SW bypasses its own caching on localhost (see
+    // sw.js), so dev assets/HMR are never served stale.
+    if (!("serviceWorker" in navigator)) return;
     navigator.serviceWorker
       .register("/sw.js")
       .then(() => {

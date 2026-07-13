@@ -6,8 +6,6 @@
  *   couples/{coupleId}
  *     messages/{messageId}
  *     timeline/{memoryId}
- *     albums/{albumId}
- *     gallery/{itemId}
  *     calendar/{eventId}
  *     habits/{habitId}
  *     moods/{date_uid}
@@ -26,7 +24,7 @@ import {
   onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where,
   increment, type DocumentData, type QueryConstraint,
 } from "firebase/firestore";
-import { db } from "./client";
+import { auth, db } from "./client";
 import type { AppNotification, Couple, UserProfile } from "../types";
 
 export const coupleCol = (coupleId: string, sub: string) =>
@@ -104,6 +102,30 @@ export async function pushAppNotification(
   await addDoc(coupleCol(coupleId, "notifications"), {
     ...n, read: false, createdAt: serverTimestamp(),
   });
+  // Best-effort web push to the partner's devices. Never block or throw:
+  // the in-app notification above is the source of truth; push is a bonus.
+  void sendWebPush(coupleId, n);
+}
+
+/** Fire an FCM push via the server route. Silent no-op if push isn't set up. */
+async function sendWebPush(
+  coupleId: string,
+  n: Omit<AppNotification, "id" | "read" | "createdAt">,
+): Promise<void> {
+  try {
+    const user = auth().currentUser;
+    if (!user) return;
+    const idToken = await user.getIdToken();
+    await fetch("/api/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      body: JSON.stringify({
+        coupleId, toUid: n.toUid, title: n.title, body: n.body, href: n.href,
+      }),
+    });
+  } catch {
+    // offline / route unavailable — the in-app notification still lands.
+  }
 }
 
 /* --------------------------------- pairing -------------------------------- */

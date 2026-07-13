@@ -11,9 +11,9 @@ import { useAuth } from "@/providers/AuthProvider";
 
 const FEATURES = [
   { emoji: "📖", title: "Timeline", text: "Your whole story — first meet to yesterday's laugh." },
-  { emoji: "💬", title: "Chat", text: "A private lane for the two of you, with voice notes." },
+  { emoji: "💬", title: "Chat", text: "A private lane for the two of you — reactions, pins & read receipts." },
   { emoji: "🎮", title: "16 Games", text: "Quizzes, dares, puzzles and a dash game to beat." },
-  { emoji: "🖼️", title: "Gallery", text: "Albums, favorites and slideshows of every memory." },
+  { emoji: "🤖", title: "Cupid AI", text: "Your relationship's own assistant — ideas, plans and gentle nudges." },
   { emoji: "📅", title: "Calendar", text: "Dates, trips and anniversaries — never miss one." },
   { emoji: "💌", title: "Letters", text: "Slow, scheduled love letters. Sealed until it's time." },
 ];

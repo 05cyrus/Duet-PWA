@@ -37,7 +37,7 @@ const NOTIFY_ROWS: { key: keyof CoupleSettings; label: string; hint: string }[] 
 
 /** Sub-collections included in the JSON export. */
 const EXPORT_COLLECTIONS = [
-  "messages", "timeline", "gallery", "albums", "calendar", "habits", "moods",
+  "messages", "timeline", "calendar", "habits", "moods",
   "bucketList", "letters", "scores", "achievements", "notes", "music", "notifications",
 ];
 

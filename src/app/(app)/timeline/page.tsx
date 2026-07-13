@@ -88,20 +88,6 @@ export default function TimelinePage() {
               </span>
 
               <article className="glass group overflow-hidden rounded-3xl">
-                {m.mediaUrls.length > 0 && (
-                  <div className={cn("grid gap-0.5", m.mediaUrls.length > 1 && "grid-cols-2")}>
-                    {m.mediaUrls.slice(0, 4).map((url, j) =>
-                      m.mediaTypes[j] === "video" ? (
-                        <video key={url} src={url} controls preload="metadata"
-                          className="max-h-72 w-full bg-black/5 object-cover" />
-                      ) : (
-                        // eslint-disable-next-line @next/next/no-img-element -- Firebase Storage URL
-                        <img key={url} src={url} alt={m.title} loading="lazy"
-                          className="max-h-72 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
-                      ),
-                    )}
-                  </div>
-                )}
                 <div className="p-5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-lilac-500">
                     {formatLongDate(m.date)}

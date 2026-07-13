@@ -11,8 +11,8 @@ import { Modal } from "@/components/ui/Modal";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useCoupleCollection } from "@/hooks/useCoupleCollection";
 import { useLoveStats } from "@/hooks/useLoveStats";
-import { limitTo, orderBy, where } from "@/lib/firebase/db";
-import type { Achievement, GalleryItem } from "@/lib/types";
+import { limitTo, orderBy } from "@/lib/firebase/db";
+import type { Achievement } from "@/lib/types";
 import { daysTogether, formatLongDate, isoToday, relationshipLevel } from "@/lib/utils";
 import { useAuth } from "@/providers/AuthProvider";
 import { useCouple } from "@/providers/CoupleProvider";
@@ -28,10 +28,6 @@ export default function ProfilePage() {
   const [coupleName, setCoupleName] = useState("");
   const [anniversary, setAnniversary] = useState("");
 
-  const { items: favorites } = useCoupleCollection<GalleryItem>(
-    "gallery",
-    () => [where("favorite", "==", true), limitTo(6)],
-  );
   const { items: achievements } = useCoupleCollection<Achievement>(
     "achievements",
     () => [orderBy("createdAt", "desc"), limitTo(12)],
@@ -99,7 +95,6 @@ export default function ProfilePage() {
           {[
             ["💬", stats.messages, "Messages"],
             ["📖", stats.memories, "Memories"],
-            ["📸", stats.photos, "Photos"],
             ["💌", stats.letters, "Letters"],
             ["🎮", stats.gamesPlayed, "Games"],
             ["🪣", stats.wishesDone, "Wishes"],
@@ -111,27 +106,6 @@ export default function ProfilePage() {
             </div>
           ))}
         </div>
-      </GlassCard>
-
-      {/* Favorite memories */}
-      <GlassCard>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-bold">Favorite memories ⭐</h3>
-          <Link href="/gallery" className="text-xs font-semibold text-lilac-500 hover:underline">Gallery →</Link>
-        </div>
-        {favorites.length === 0 ? (
-          <p className="py-3 text-center text-sm text-ink-soft">Star photos in the gallery to pin them here.</p>
-        ) : (
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-            {favorites.map((f) => (
-              <Link key={f.id} href="/gallery" className="aspect-square overflow-hidden rounded-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element -- Firebase Storage URL */}
-                <img src={f.url} alt={f.caption || "Favorite"} loading="lazy"
-                  className="size-full object-cover transition-transform hover:scale-105" />
-              </Link>
-            ))}
-          </div>
-        )}
       </GlassCard>
 
       {/* Achievements */}

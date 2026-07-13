@@ -46,6 +46,11 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
 
+  // Development: don't cache/intercept anything on localhost. The SW is still
+  // registered (so push works), but assets and HMR go straight to the network
+  // — no stale dev builds served from cache.
+  if (self.location.hostname === "localhost" || self.location.hostname === "127.0.0.1") return;
+
   // Never intercept Firebase / API traffic — Firestore has its own offline layer.
   if (
     url.origin !== self.location.origin ||

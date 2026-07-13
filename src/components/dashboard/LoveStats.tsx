@@ -10,7 +10,6 @@ export function LoveStats({ stats }: { stats: Stats }) {
   const tiles = [
     { label: "Messages", value: stats.messages, emoji: "💬" },
     { label: "Memories", value: stats.memories, emoji: "📖" },
-    { label: "Photos", value: stats.photos, emoji: "📸" },
     { label: "Letters", value: stats.letters, emoji: "💌" },
     { label: "Games played", value: stats.gamesPlayed, emoji: "🎮" },
     { label: "Wishes done", value: stats.wishesDone, emoji: "🪣" },

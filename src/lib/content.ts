@@ -79,8 +79,6 @@ export const MEMORY_KIND_META: Record<string, { label: string; emoji: string }> 
   "first-date":  { label: "First Date",     emoji: "🌹" },
   trip:          { label: "Trip",           emoji: "✈️" },
   anniversary:   { label: "Anniversary",    emoji: "💍" },
-  photo:         { label: "Photo Memory",   emoji: "📸" },
-  video:         { label: "Video Memory",   emoji: "🎥" },
   special:       { label: "Special Moment", emoji: "✨" },
 };
 

@@ -11,7 +11,6 @@ import { useCouple } from "@/providers/CoupleProvider";
 export interface LoveStats {
   messages: number;
   memories: number;
-  photos: number;
   letters: number;
   gamesPlayed: number;
   wishesDone: number;
@@ -21,7 +20,7 @@ export interface LoveStats {
 }
 
 const EMPTY: LoveStats = {
-  messages: 0, memories: 0, photos: 0, letters: 0,
+  messages: 0, memories: 0, letters: 0,
   gamesPlayed: 0, wishesDone: 0, loveScore: 0, loading: true,
 };
 
@@ -46,11 +45,10 @@ export function useLoveStats(): LoveStats {
           return snap.data().count;
         };
 
-        const [messages, memories, photos, letters, gamesPlayed, wishesDone,
+        const [messages, memories, letters, gamesPlayed, wishesDone,
                recentMessages, recentMoods, recentScores] = await Promise.all([
           count("messages"),
           count("timeline"),
-          count("gallery"),
           count("letters"),
           count("scores"),
           count("bucketList", where("done", "==", true)),
@@ -66,7 +64,7 @@ export function useLoveStats(): LoveStats {
         ));
 
         if (!cancelled) {
-          setStats({ messages, memories, photos, letters, gamesPlayed, wishesDone, loveScore, loading: false });
+          setStats({ messages, memories, letters, gamesPlayed, wishesDone, loveScore, loading: false });
         }
       } catch {
         if (!cancelled) setStats((s) => ({ ...s, loading: false }));

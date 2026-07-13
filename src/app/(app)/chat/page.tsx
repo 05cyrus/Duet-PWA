@@ -4,35 +4,28 @@ import { arrayUnion, doc, onSnapshot, serverTimestamp, setDoc } from "firebase/f
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmojiPicker } from "@/components/chat/EmojiPicker";
-import { GifPicker } from "@/components/chat/GifPicker";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCoupleCollection } from "@/hooks/useCoupleCollection";
 import { db } from "@/lib/firebase/client";
 import { addToCouple, limitTo, orderBy, updateInCouple } from "@/lib/firebase/db";
-import { uploadCoupleFile } from "@/lib/firebase/storage";
-import type { ChatMessage, MessageKind } from "@/lib/types";
+import type { ChatMessage } from "@/lib/types";
 import { toDate } from "@/lib/utils";
 import { useAuth } from "@/providers/AuthProvider";
 import { useCouple } from "@/providers/CoupleProvider";
-import { useToast } from "@/providers/ToastProvider";
 
-type Panel = "none" | "emoji" | "gif" | "search" | "pins";
+type Panel = "none" | "emoji" | "search" | "pins";
 
 export default function ChatPage() {
   const { user } = useAuth();
   const { coupleId, couple, partnerUid, partnerName, partnerPhoto } = useCouple();
-  const { toast } = useToast();
 
   const [text, setText] = useState("");
   const [panel, setPanel] = useState<Panel>("none");
   const [search, setSearch] = useState("");
-  const [recording, setRecording] = useState(false);
   const [partnerTyping, setPartnerTyping] = useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { items } = useCoupleCollection<ChatMessage>(
@@ -88,62 +81,16 @@ export default function ChatPage() {
   }, [messages.length, partnerTyping]);
 
   /* --------------------------------- sending ------------------------------- */
-  const send = async (kind: MessageKind, body: string, mediaUrl?: string) => {
-    if (!coupleId || !user) return;
-    await addToCouple(coupleId, "messages", {
-      senderId: user.uid, kind, text: body,
-      ...(mediaUrl ? { mediaUrl } : {}),
-      pinned: false, readBy: [user.uid], reactions: {},
-    });
-  };
-
   const sendText = async () => {
+    if (!coupleId || !user) return;
     const body = text.trim();
     if (!body) return;
     setText("");
     setPanel("none");
-    await send("text", body);
-  };
-
-  const sendImage = async (f: File | null) => {
-    if (!f || !coupleId) return;
-    try {
-      const url = await uploadCoupleFile(coupleId, "chat", f);
-      await send(f.type === "image/gif" ? "gif" : "image", "", url);
-    } catch {
-      toast("Couldn't send the image.", "error");
-    }
-  };
-
-  /* ------------------------------- voice notes ----------------------------- */
-  const toggleRecord = async () => {
-    if (recording) {
-      recorderRef.current?.stop();
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const rec = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-      rec.ondataavailable = (e) => chunks.push(e.data);
-      rec.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        setRecording(false);
-        const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
-        if (blob.size < 1000 || !coupleId) return;
-        try {
-          const url = await uploadCoupleFile(coupleId, "voice", blob, `${Date.now()}.webm`);
-          await send("voice", "", url);
-        } catch {
-          toast("Couldn't send the voice note.", "error");
-        }
-      };
-      rec.start();
-      recorderRef.current = rec;
-      setRecording(true);
-    } catch {
-      toast("Microphone permission needed for voice notes.", "error");
-    }
+    await addToCouple(coupleId, "messages", {
+      senderId: user.uid, kind: "text", text: body,
+      pinned: false, readBy: [user.uid], reactions: {},
+    });
   };
 
   const jumpTo = (id: string) => {
@@ -219,7 +166,7 @@ export default function ChatPage() {
                   <li key={m.id}>
                     <button onClick={() => jumpTo(m.id)}
                       className="w-full truncate rounded-xl px-3 py-1.5 text-left text-sm hover:bg-white/50 dark:hover:bg-white/10">
-                      {m.kind === "text" ? m.text : `${m.kind} message`}
+                      {m.text}
                     </button>
                   </li>
                 ))}
@@ -273,11 +220,6 @@ export default function ChatPage() {
             <EmojiPicker onPick={(e) => setText((t) => t + e)} />
           </motion.div>
         )}
-        {panel === "gif" && (
-          <motion.div exit={{ opacity: 0, y: 8 }} className="mb-2">
-            <GifPicker onPick={(url) => { setPanel("none"); send("gif", "", url); }} />
-          </motion.div>
-        )}
       </AnimatePresence>
 
       {/* Input bar */}
@@ -290,17 +232,6 @@ export default function ChatPage() {
           className="grid size-10 shrink-0 place-items-center rounded-full text-xl hover:bg-white/40 dark:hover:bg-white/10">
           😊
         </button>
-        <button type="button" aria-label="GIFs" aria-expanded={panel === "gif"}
-          onClick={() => setPanel(panel === "gif" ? "none" : "gif")}
-          className="grid size-10 shrink-0 place-items-center rounded-full text-xs font-bold text-ink-soft hover:bg-white/40 dark:hover:bg-white/10">
-          GIF
-        </button>
-        <button type="button" aria-label="Send image" onClick={() => fileRef.current?.click()}
-          className="grid size-10 shrink-0 place-items-center rounded-full text-lg hover:bg-white/40 dark:hover:bg-white/10">
-          🖼️
-        </button>
-        <input ref={fileRef} type="file" accept="image/*" hidden
-          onChange={(e) => { sendImage(e.target.files?.[0] ?? null); e.target.value = ""; }} />
 
         <textarea
           value={text}
@@ -309,24 +240,11 @@ export default function ChatPage() {
             if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendText(); }
           }}
           rows={1}
-          placeholder={recording ? "Recording… tap 🎙️ to send" : "Message…"}
+          placeholder="Message…"
           aria-label="Message"
           className="max-h-28 min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-sm focus:outline-none"
         />
 
-        <motion.button
-          type="button"
-          aria-label={recording ? "Stop and send voice note" : "Record voice note"}
-          aria-pressed={recording}
-          onClick={toggleRecord}
-          animate={recording ? { scale: [1, 1.15, 1] } : {}}
-          transition={recording ? { repeat: Infinity, duration: 1 } : {}}
-          className={`grid size-10 shrink-0 place-items-center rounded-full text-lg ${
-            recording ? "bg-rose-500 text-white" : "hover:bg-white/40 dark:hover:bg-white/10"
-          }`}
-        >
-          🎙️
-        </motion.button>
         <button type="submit" aria-label="Send"
           className="gradient-btn grid size-10 shrink-0 place-items-center rounded-full text-white">
           ➤
